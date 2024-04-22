@@ -23,8 +23,15 @@ sipdump是一款基于sip协议和mrcp协议的抓包分析工具，帮助做好
 
 # 编译&安装
 ```
-cd installer
-./install 
+# 1. 编译安装依赖
+...
+
+# 2. 编译安装sipdump
+mkdir -p build
+cd build
+cmake3 ..
+make 
+make install
 ```
 
 # 启动
