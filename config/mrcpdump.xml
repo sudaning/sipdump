@@ -1,0 +1,88 @@
+<sipdump>
+    <!-- 
+        日志名
+    -->
+    <log-name>mrcpdump</log-name>
+    <!-- 
+        日志模式
+        syslog 输出到syslog
+        console 输出到stdout
+    -->
+    <log-mode>syslog</log-mode>
+    <!-- 
+        日志设备
+        syslog 时填LOG_LOCAL0 ~ LOG_LOCAL7
+        console 时填stdout,stderr
+    -->
+    <log-facility>LOG_LOCAL5</log-facility>
+    <!-- 
+        抓包接口，支持网卡模式，离线文件模式
+        type="eth" 网卡模式，指定网卡名称
+        type="file" 离线文件模式，指定文件路径
+    -->
+    <interface type="eth">any</interface>
+    <!-- 
+        运行时的pid路径，默认/var/run/sipdump.pid
+    -->
+    <pid>/var/run/mrcpdump.pid</pid>
+    <!-- 
+        网卡混杂模式，默认true
+    -->
+    <promiscuous>true</promiscuous>
+    <!--
+        保存位置，表达式支持的关键字有：
+        时间类：
+            ${year} 年 ${month} 月 ${day} 日 ${hour} 时 ${minute} 分 ${second} 秒 ${usecond} 毫秒
+        SIP类：
+            ${sip_from_number} SIP from头域中sip的user字段，或者tel中的号码
+            ${sip_to_number} SIP to头域中sip的user字段，或者tel中的号码
+            ${sip_call_id} SIP Call-ID
+            ${sip_h_XXXX} SIP 自定义头域，sip_h_为关键字，自定义头域为XXXX，大小写敏感
+        MRCP类：
+            ${mrcp_channel_id} SIP的SDP中mrcp描述下，a=channel的值；或MRCP消息中Channel-Identifier头域值
+            ${mrcp_h_XXXX} MRCP 自定义头域，mrcp_h_为关键字，自定义头域为XXXX，大小写敏感
+    -->
+    <record>./pcap/${year}-${month}-${day}/${hour}/${hour}${minute}${second}_${mrcp_channel_id}.pcap</record>
+    <!-- 
+        日志级别，默认info
+    -->
+    <log-level>info</log-level>
+    <!-- 
+        rtp包过滤器，默认不抓rtp包
+    -->
+    <rtp-filter>rtp,rtcp,event</rtp-filter>
+    <!-- 
+        会话限制时间，单位秒，默认7200秒
+    -->
+    <limit-time>7200</limit-time>
+    <!-- 
+        网卡过滤表达式（同tcpdump表达式），可提升分析性能
+    -->
+    <!--
+    <pcap-filter-exp>port (8060 or 1554) or portrange 30000-35000</pcap-filter-exp>
+    -->
+    <!-- 
+        ip组。本软件只分析sdp中的ip地址，若存在多ip的情况（多网卡、内外网）则无法关联rtp包和sip会话。添加IP组，组内IP同属一个主机
+    -->
+    <ip-group>
+        <group name="localhost">
+            <ip>192.168.1.100</ip> <!-- 主机本地IP -->
+            <ip>192.168.43.100</ip> <!-- 主机本地IP -->
+        </group>
+    </ip-group>
+    <!-- 
+        自定义插件
+        dir 插件所在目录
+    -->
+    <plugins dir="/usr/local/sipdump/plugins">
+        <!-- 
+            插件模块定义
+            id      插件唯一ID
+            name    插件.so的名字
+            enable  使能
+        -->
+        <module id="Example Mrcp" name="example_mrcp" enable="true">
+            <param name="" value=""/>
+        </module>
+    </plugins>
+</sipdump>
