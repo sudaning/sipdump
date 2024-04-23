@@ -1,4 +1,4 @@
-FROM 136.6.163.238:9000/icc/centos:latest as build
+FROM centos:centos7 as build
 
 MAINTAINER mrcpdump
 
@@ -9,7 +9,7 @@ COPY ./ /tmp/sipdump/
 RUN ["/bin/sh", "-c", "cd /tmp/sipdump/installer && chmod a+x install.sh && ./install.sh"]
 RUN ["/bin/sh", "-c", "rm -rf /tmp/sipdump/"]
 
-FROM 136.6.163.238:9000/icc/centos:latest as mrcp
+FROM centos:centos7 as mrcp
 COPY --from=build /usr/local/sipdump /usr/local/sipdump
 COPY --from=build /usr/local/lib /usr/local/lib
 COPY --from=build /usr/local/lib64 /usr/local/lib64
