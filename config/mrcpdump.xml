@@ -38,11 +38,8 @@
             ${sip_to_number} SIP to头域中sip的user字段，或者tel中的号码
             ${sip_call_id} SIP Call-ID
             ${sip_h_XXXX} SIP 自定义头域，sip_h_为关键字，自定义头域为XXXX，大小写敏感
-        MRCP类：
-            ${mrcp_channel_id} SIP的SDP中mrcp描述下，a=channel的值；或MRCP消息中Channel-Identifier头域值
-            ${mrcp_h_XXXX} MRCP 自定义头域，mrcp_h_为关键字，自定义头域为XXXX，大小写敏感
     -->
-    <record>./pcap/${year}-${month}-${day}/${hour}/${hour}${minute}${second}_${mrcp_channel_id}.pcap</record>
+    <record>./pcap/${year}-${month}-${day}/${hour}/${hour}${minute}${second}_${sip_call_id}.pcap</record>
     <!-- 
         日志级别，默认info
     -->

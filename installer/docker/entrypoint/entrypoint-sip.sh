@@ -1,5 +1,3 @@
 #!/bin/bash
-
-sipdump -c /etc/sipdump/sipdump.xml
-
+/usr/local/sipdump/bin/sipdump -c /etc/sipdump/sipdump.xml
 exec "$@"

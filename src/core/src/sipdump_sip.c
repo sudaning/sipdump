@@ -62,6 +62,7 @@ apr_status_t sipdump_sip_hdr_pre_parse_add(char hdrs[][SIPDUMP_HEADER_NAME_MAX],
     int i = 0;
     for (i = 0; i < count; i++) {
         const char *h = hdrs[i];
+        // SIPDUMP_LOG(SIPDUMP_PRIO_TRACE, "SIP hdr pre parse add: %s", h);
         int j = 0;
         int found = FALSE;
         for (j = 0; j < sipdump_arraylen(hdr_mgr.fields); j++) {
@@ -90,10 +91,8 @@ apr_status_t sipdump_sip_hdr_pre_parse_add(char hdrs[][SIPDUMP_HEADER_NAME_MAX],
     sipdump_text_field_t *fields = apr_pcalloc(hdr_mgr.pool, sizeof(sipdump_text_field_t) * field_count);
     memcpy(fields, hdr_mgr.fields, sizeof(sipdump_text_field_t) * hdr_mgr.field_count);
     hdr_mgr.fields = fields;
-    hdr_mgr.field_count = field_count;
-
-    fields += hdr_mgr.field_count;
     if (ext_count) {
+        fields += hdr_mgr.field_count;
         int m = 0;
         for (m = 0; m < ext_count; m++) {
             sipdump_text_field_t *f = &fields[m];
@@ -101,6 +100,19 @@ apr_status_t sipdump_sip_hdr_pre_parse_add(char hdrs[][SIPDUMP_HEADER_NAME_MAX],
             f->hdr.len = strlen(f->hdr.str);
         }
     }
+    hdr_mgr.field_count = field_count;
+
+#if 0
+    if (sipdump_log_priority_trace()) {
+        SIPDUMP_LOG(SIPDUMP_PRIO_DEBUG, "SIP header total: %u", hdr_mgr.field_count);
+        int i = 0;
+        for (i = 0; i < hdr_mgr.field_count; i++) {
+            sipdump_text_field_t *f = &hdr_mgr.fields[i];
+            SIPDUMP_LOG(SIPDUMP_PRIO_TRACE, "SIP header hdr: %s", f->hdr.str);
+        }
+    }
+#endif
+    return APR_SUCCESS;
 }
 
 static apr_status_t sipdump_sip_hdr_pre_parse_init(char hdrs[][SIPDUMP_HEADER_NAME_MAX], apr_size_t count) {
@@ -153,6 +165,8 @@ apr_status_t sipdump_sip_init_opt(sipdump_opt_t* opt) {
             "You must specify 'sip_call_id' or 'sip_h_xxx' to ensure uniqueness");
         return APR_EINVAL;
     }
+
+    // SIPDUMP_LOG(SIPDUMP_PRIO_TRACE, "SIP ext hdr: %u", hdr_count);
     
     sipdump_sip_hdr_pre_parse_init(hdrs, hdr_count);
     return APR_SUCCESS;
@@ -216,7 +230,16 @@ apr_status_t sipdump_sip_parse(const char *data, apr_size_t size, sipdump_sip_me
     /** 指定解析其中几个头域 */
     sipdump_text_field_t fields[SIPDUMP_HDR_EXT_MAX];
     memcpy(fields, hdr_mgr.fields, sizeof(sipdump_text_field_t) * hdr_mgr.field_count);
-
+#if 0
+    if (sipdump_log_priority_trace()) {
+        SIPDUMP_LOG(SIPDUMP_PRIO_TRACE, "SIP parse hdr total: %u", hdr_mgr.field_count);
+        int i = 0;
+        for (i = 0; i < hdr_mgr.field_count; i++) {
+            sipdump_text_field_t *f = &fields[i];
+            SIPDUMP_LOG(SIPDUMP_PRIO_TRACE, "SIP parse hdr: %s", f->hdr.str);
+        }
+    }
+#endif
     apr_status_t status = sipdump_sip_hdr_parse(data, size, fields, hdr_mgr.field_count, &sip->hdr);
     if (sip->hdr.content_length && sip->hdr.content_type.str 
         && !strncasecmp(sip->hdr.content_type.str, SIP_VALUE_APPLICATION_SDP, sizeof(SIP_VALUE_APPLICATION_SDP) - 1)) {

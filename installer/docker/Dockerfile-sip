@@ -1,0 +1,26 @@
+FROM 136.6.163.238:9000/icc/centos:latest as build
+
+MAINTAINER sipdump
+
+ENV PATH /usr/local/sipdump/bin:$PATH
+
+COPY ./ /tmp/sipdump/
+
+RUN ["/bin/sh", "-c", "cd /tmp/sipdump/installer && chmod a+x install.sh && ./install.sh"]
+RUN ["/bin/sh", "-c", "rm -rf /tmp/sipdump/"]
+
+FROM 136.6.163.238:9000/icc/centos:latest as sipdump
+COPY --from=build /usr/local/sipdump /usr/local/sipdump
+COPY --from=build /usr/local/lib /usr/local/lib
+COPY --from=build /usr/local/lib64 /usr/local/lib64
+COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /usr/local/sbin /usr/local/sbin
+COPY --from=build /usr/lib64 /usr/lib64
+COPY --from=build /usr/lib /usr/lib
+COPY --from=build /usr/bin /usr/bin
+COPY --from=build /usr/sbin /usr/sbin
+COPY --from=build /usr/local/apr/lib /usr/local/apr/lib
+COPY --from=build /etc/ld.so.conf.d/ /etc/ld.so.conf.d
+RUN ldconfig
+CMD ["entrypoint-sip.sh"]
+

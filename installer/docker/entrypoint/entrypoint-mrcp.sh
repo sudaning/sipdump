@@ -1,5 +1,3 @@
 #!/bin/bash
-
-mrcpdump -c /etc/mrcpdump/mrcpdump.xml
-
+/usr/local/sipdump/bin/mrcpdump -c /etc/mrcpdump/mrcpdump.xml
 exec "$@"

@@ -18,6 +18,7 @@ install_dep_sipdump() {
 	cd ${basepath}
   cp -f ../dependency/pkg-config/* /usr/lib64/pkgconfig/
   cp -f ../dependency/ldconfig/* /etc/ld.so.conf.d/
+  cp -f ldconfig/* /etc/ld.so.conf.d/
   ldconfig
 }
 
@@ -48,9 +49,27 @@ install_sipdump() {
   cp docker/entrypoint/* /usr/local/bin/
 }
 
+install_plugins() {
+  echo -e "\e[1;32msipdump plugins install...\e[0m"
+
+  for dir in `ls ${basepath}/../plugins`
+  do
+    if [ -d "$basepath/../plugins/$dir" ]; then
+      cd "$basepath/../plugins/$dir" && rm -rf build && mkdir build && cd build && cmake3 .. && make && make install
+      if [ $? -ne 0 ]; then
+        echo -e "\e[1;31msipdump plugins '$dir' install error!\e[0m"
+        exit 1
+      fi
+    fi
+  done
+
+  echo -e "\e[1;32msipdump plugins install success!\e[0m"
+}
+
 install () {
   install_dep_sipdump
   install_sipdump
+  install_plugins
 }
 
 install
